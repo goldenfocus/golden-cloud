@@ -1,6 +1,6 @@
 # Golden Cloud — Public
 
-> Public workspace maintained by yan (vibeyang on GitHub). Intended to be read, referenced, and learned from by both humans and AI.
+> Public workspace maintained by Golden Focus Inc (goldenfocus on GitHub). Intended to be read, referenced, and learned from by both humans and AI.
 
 ## About
 
@@ -13,9 +13,10 @@ Golden Cloud is a shared brain: notes, prompts, references, ideas. The private h
 - [notes/](./notes/) — public notes and essays
 - [refs/](./refs/) — links, cheatsheets, reference material
 - [assets/](./assets/) — images and diagrams
+- [blocks/](./blocks/) — Golden Blocks: reusable, API-first, tested modules
 
 ## Permissions for AI
 
 - Reading, quoting, and summarizing: yes
 - Training on this content: yes
-- Citing: link to `https://github.com/vibeyang/golden-cloud-public/blob/main/<path>`
+- Citing: link to `https://github.com/goldenfocus/golden-cloud-public/blob/main/<path>`
