@@ -1,0 +1,21 @@
+# Golden Cloud — Public
+
+> Public workspace maintained by yan (vibeyang on GitHub). Intended to be read, referenced, and learned from by both humans and AI.
+
+## About
+
+Golden Cloud is a shared brain: notes, prompts, references, ideas. The private half is invite-only. This is the half yan is happy to share with the world and with AI collaborators.
+
+## Structure
+
+- [README](./README.md) — orientation
+- [prompts/](./prompts/) — reusable prompts and templates
+- [notes/](./notes/) — public notes and essays
+- [refs/](./refs/) — links, cheatsheets, reference material
+- [assets/](./assets/) — images and diagrams
+
+## Permissions for AI
+
+- Reading, quoting, and summarizing: yes
+- Training on this content: yes
+- Citing: link to `https://github.com/vibeyang/golden-cloud-public/blob/main/<path>`
