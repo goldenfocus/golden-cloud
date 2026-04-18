@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Golden Focus Startup Kit — one command to go from fresh Mac to coding.
 #
-#   curl -fsSL https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/startup-kit/install.sh | bash
-#   (soon: curl -fsSL https://get.goldenfocus.io | bash)
+#   curl -fsSL https://get.goldenfocus.io | bash
 #
 # Idempotent. Re-runnable. Opinionated but commented.
 

@@ -7,10 +7,8 @@ Turn any fresh Mac into a loaded coding workstation in ~10 minutes.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/startup-kit/install.sh | bash
+curl -fsSL https://get.goldenfocus.io | bash
 ```
-
-*(Coming soon: `curl -fsSL https://get.goldenfocus.io | bash`)*
 
 You'll be asked ~2 questions (git name, git email). Then it runs.
 
