@@ -12,6 +12,22 @@ But: **the user controls the deploy button. Always.** Speed with a safety rail, 
 
 ---
 
+## Golden Cloud — Shared Brain
+
+Yan's shared brain for secrets, prompts, notes, blocks, and plans. Two halves: `~/golden-cloud/` (private) and `~/golden-cloud-public/` (public). Aliases the user may use interchangeably: **Golden Cloud**, **Gold Cloud**, **Golden Secret**, **Golden Vault**, **Golden Focus** (in a storage context), **the cloud**, **the vault**.
+
+**The protocol lives at `~/golden-cloud/AI.md`.** Read it when any of the trigger phrases above come up, or when the user asks you to put/save/store/fetch anything that might live there.
+
+Quick rules:
+- **Secrets / API keys / `.env`**: never ask the user to paste — decrypt from `~/golden-cloud/secrets/` via `sops -d`, or write new ones via `echo "$VAL" | ~/golden-cloud/gc-secret.sh set <file> <KEY>` (encrypts + commits + pushes atomically).
+- **Prompts / notes / blocks**: drop into the right subfolder of `~/golden-cloud/` (private) or `~/golden-cloud-public/` (public), commit, push.
+- **Design mockups**: NOT Golden Cloud — use `~/p69/scripts/add-design.sh`.
+- Canonical secret→disk map: `~/golden-cloud/laptop/drop.map`.
+- Access check: `sops -d ~/golden-cloud/secrets/p69-prod.env > /dev/null` — if it fails, enrollment is missing (point user at `~/golden-cloud/secrets/README.md`, never prompt for paste).
+- **Never** echo decrypted values back unless explicitly asked. **Never** write plaintext into the git working tree.
+
+---
+
 ## Git — Worktrees + Never Push Without Permission
 
 > 🚨 **HARD RULE: NEVER run `git push` unless the user explicitly says "push it", "deploy", "ship it", or invokes the `/push` skill. Exception: prod is actively down — see `feedback_push_when_prod_down`.**
