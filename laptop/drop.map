@@ -1,0 +1,11 @@
+# Where to decrypt each encrypted secret on a fresh laptop.
+# Format (tab-separated):
+#   <path-inside-golden-cloud>	<destination-on-disk>
+#
+# Uncomment and add entries as you encrypt real secrets into secrets/.
+#
+# Example:
+# secrets/anthropic.env	$HOME/.config/anthropic/env
+# secrets/gsc-service-account.json	$HOME/.claude/gsc-service-account.json
+
+secrets/p69-prod.env	$HOME/p69/.env.production.local

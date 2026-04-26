@@ -1,0 +1,15 @@
+# Golden Cloud — SOPS config.
+#
+# Add a new recipient by appending their age public key to `recipients` below,
+# then re-encrypt existing secrets to include them:
+#   sops updatekeys secrets/<file>
+#
+# To revoke a recipient: remove their key, run `sops updatekeys`, and rotate
+# the underlying secrets (SOPS can't retroactively un-reveal them).
+
+creation_rules:
+  - path_regex: secrets/.*\.(yaml|yml|env|json)$
+    age: >-
+      age127slf84selt4g8zh403dk8m7r6qhy9wa0j0uhflsa4sxzg5tkf0suf6m7d,
+      age1jyvxyg256dd3azc9a23evs5kkarkyupzq08fx5shzlwyvtvsvehql85vn7,
+      age12g3qw9c2l4w2wxk0xjrcz33lmwgew9k8wwa2q24nmrrgpxh02gms027ya5

@@ -1,0 +1,7 @@
+# One repo per line. Comments start with #.
+# These get cloned into ~/<repo-name>.
+
+git@github.com:p69-io/p69.git
+git@github.com:p69-io/lamtl.git
+git@github.com:goldenfocus/golden-cloud.git
+git@github.com:goldenfocus/golden-cloud-public.git
