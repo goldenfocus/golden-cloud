@@ -13,6 +13,11 @@
 
 ## Projects
 - [golden-brain](projects/golden-brain.md) — AI-operated empire command center; Linear workspace; idea vault + project tracker + weekly voice briefing
+- [golden-focus-canon](rules/golden-focus-canon.md) — The Twelve Archetypes, Tikkun Olam mission, Shepherd Principle — binding on all agents
+
+## Blocks
+- [madame](../blocks/madame/README.md) — Classified ad autoposting engine (golden block, app-agnostic)
+- [astrosync](../blocks/astrosync/README.md) — Block 13: adaptive energy-aware product layer
 - [zemium](projects/zemium.md) — mobile app; three atomic pillars (Chat/Bookings/Signals); first golden-blocks consumer; Slice A in extraction phase from p69 worktree
 - [golden-avatar](projects/golden-avatar.md) — `<GoldenAvatar>` + `GOLDEN_AVATAR_FIELDS` block; replaces ~98 hand-rolled `/@${username}` + ~50 avatar sites in p69; server-default, client-shim for online dot
 
