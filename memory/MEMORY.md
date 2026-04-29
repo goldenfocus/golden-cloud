@@ -14,6 +14,7 @@
 ## Projects
 - [golden-brain](projects/golden-brain.md) — AI-operated empire command center; Linear workspace; idea vault + project tracker + weekly voice briefing
 - [golden-focus-canon](rules/golden-focus-canon.md) — The Twelve Archetypes, Tikkun Olam mission, Shepherd Principle — binding on all agents
+- [zemium-massage](projects/zemium-massage.md) — first Zemium vertical, live at massage.zemium.net; canonical handover at `~/zemium-massage/HANDOVER.md`
 
 ## Blocks
 - [madame](../blocks/madame/README.md) — Classified ad autoposting engine (golden block, app-agnostic)
