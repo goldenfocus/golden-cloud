@@ -18,3 +18,5 @@ mirweb's actual mission (per JR, 2026-04-30): build a corp his younger brothers 
 - "Passive income" framing is half-fiction; it's recurring-after-active-sales-grind. Be honest with brothers about the work.
 - TAM ceiling at 200 customers × $99 = ~$237K/year is the real target shape, not $10M ARR.
 - Don't propose "pivot mirweb" as a strategy in this codebase. The mission predates and overrides any market analysis.
+
+**Brand line (2026-04-30 onward):** "The future is now." JR rejected the prior "Parking is dead." tagline (still cited in CLAUDE.md as of writing — that file hasn't been swept yet). Don't lead with "parking is dead" without confirming with JR. Pricing position: $60/mo or $500/yr, single tier, framed as "we run your business" (operations, not hosting). Do NOT use the "Live in 60 seconds" framing — that's Hostinger Horizons' surface, JR explicitly walked away from it.
