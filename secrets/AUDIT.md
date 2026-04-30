@@ -21,3 +21,4 @@ Entries are chronological (newest appended to the bottom). Format:
 - `2026-04-27T13:01:35Z` — **set** `p69-prod.env:MADAME_ENCRYPTION_KEY` — _Zang @ goldenfocus (ai/script)_ — (no purpose recorded)
 - `2026-04-27T16:59:05Z` — **set** `linear.env:LINEAR_API_KEY` — _Zang @ goldenfocus (ai/script)_ — Linear API — cross-project task management (Golden Brain / p69 / empire brain)
 - `2026-04-27T18:49:11Z` — **set** `p69-prod.env:MADAME_ENCRYPTION_KEY` — _Zang @ goldenfocus (ai/script)_ — (no purpose recorded)
+- `2026-04-30T09:30:04Z` — **set** `madame-platforms.env:ESCORTE_INTIME_EMAIL` — _Zang @ goldenfocus (ai/script)_ — LAMTL Escorte Intime account email
