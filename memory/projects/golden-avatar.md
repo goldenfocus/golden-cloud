@@ -46,8 +46,8 @@ Supabase `.select(GOLDEN_AVATAR_FIELDS)` → typed profile → drops straight in
 - `src/components/Chat/OnlineIndicator.tsx`
 - `src/components/Chat/ChatBox/Messages/Message/index.tsx` L533-613 — canonical inline pattern to replace
 
-## Architecture decision: server-default
-`useChatStore` (zustand) is client-only. If `<GoldenAvatar>` imports it unconditionally, every caller becomes `'use client'` → kills RSC streaming across ~98 sites, most of which are server (admin tables, SEO pages, profile lists). **Resolution**: `<GoldenAvatar>` ships as server component. `showOnline={true}` lazy-loads a tiny `<GoldenAvatarOnlineDot>` client island that subscribes to the online map. Never force client on the whole tree.
+## Architecture decision: client-only (Zang locked, 2026-04-30, pick A)
+`UserAvatar` already ships `'use client'` (imports `hls.js` for video avatars), so `<GoldenAvatar>` inherits client by inheritance — no quick way around it. Splitting `UserAvatar` into a server shell + client `<VideoAvatarIsland>` was option B (~2× the work, would unlock RSC streaming across ~80 server pages). Zang picked A → ship client-only now, defer the split until the sweep is done and we have a real bundle-size readout. `showOnline` still gates the `useChatStore` import (only paid when `true`).
 
 ## Proof migration (first PR)
 Branch: `feat/golden-avatar-block`. Migrate `src/app/admin/video-calls/page.tsx` (inline `<img>+<a>` in UserList ~L405-430 + @caller→@callee cell ~L270). Update queries in `aggregateByUser` + `fetchRecentCalls` to use `GOLDEN_AVATAR_FIELDS`. Screenshot before/after in PR body.
