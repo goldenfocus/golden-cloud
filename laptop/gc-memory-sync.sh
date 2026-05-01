@@ -16,7 +16,10 @@ PROJECTS_DIR="$HOME/.claude/projects"
 
 [ -d "$GC_MEM" ] || { echo "ERR: $GC_MEM doesn't exist — create it first" >&2; exit 1; }
 [ -f "$GC_MEM/MEMORY.md" ] || { echo "ERR: $GC_MEM/MEMORY.md is missing" >&2; exit 1; }
-[ -d "$PROJECTS_DIR" ] || { echo "ERR: $PROJECTS_DIR doesn't exist — Claude Code probably hasn't run yet" >&2; exit 1; }
+if [ ! -d "$PROJECTS_DIR" ]; then
+  echo "info: $PROJECTS_DIR doesn't exist yet — Claude Code hasn't run on this laptop. Re-run this script after first Claude Code session." >&2
+  exit 0
+fi
 
 count=0
 skipped=0

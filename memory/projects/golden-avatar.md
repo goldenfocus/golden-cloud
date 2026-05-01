@@ -16,12 +16,18 @@ p69 has ~98 places hand-coding `/@${username}` links + ~50 files hand-rolling av
 <GoldenAvatar
   profile={p}
   size="xs|sm|md|lg"   // 20 / 28 / 36 / 48 — default sm
-  showOnline            // opt-in, client-only shim
+  showOnline            // opt-in; only then is useChatStore subscribed
   linkOff               // for rows that are already a link
   compact               // avatar only, no @username text
+  onClick={() => trackEvent(...)}
   className=""
 />
+
+// Bonus shipped in same block:
+<GoldenAvatarGroup profiles={ps} size="sm" max={4} />
 ```
+
+**Sweep surface (verified 2026-04-30 via `rg`)**: 105 raw `/@${username}` links + 27 UserAvatar callers + 8 BannedAvatar usages — bigger than the original "98 + 50" estimate.
 
 ## Field contract (query side)
 ```ts
@@ -31,13 +37,13 @@ export type GoldenAvatarProfile = { ... }  // derived
 Supabase `.select(GOLDEN_AVATAR_FIELDS)` → typed profile → drops straight into `<GoldenAvatar>`. Add a field once, updates every consumer.
 
 ## Rules baked in (canonical behavior mirrors `src/components/Chat/ChatBox/Messages/Message/index.tsx` ~L533-613)
-- `account_status='banned'` → `<BannedAvatar>`, no link
-- `account_status='deleted'` → ghost svg + `account_deleted` text, no link
+- `account_status='banned'` → **lightweight inline banned overlay** (no link, no photoswipe, no react-query). The heavyweight `<BannedAvatar>` stays for profile pages — chips can't afford that bundle (Zang locked, pick 2A).
+- `account_status='deleted'` → ghost svg + `account_deleted` i18n text, no link
 - missing `username` → no link, fallback to `display_name` or `user_id` slice
-- `is_video_avatar` → UserAvatar already handles HLS autoplay
-- `membership_type='premium'` → gold halo via UserAvatar
-- premium halo + online dot coexist without collision
-- Link from `@/lib/i18n` (NEVER `next/link`)
+- `is_video_avatar` → UserAvatar already handles HLS autoplay (kept as-is)
+- `membership_type='premium'` → gold halo via the existing `.avatar-premium-glow` CSS class in `globals.css` (Zang locked, pick 3A — single source of truth, kills the inline box-shadow hex copy in `Message/index.tsx`)
+- premium halo + online dot coexist without collision (dot is positioned over the halo ring at bottom-right)
+- Link from `@/lib/i18n` (NEVER `next/link` — i18n routing relies on it)
 - href = `/@${username}`
 
 ## Source primitives to study (don't dup, compose)
@@ -56,7 +62,15 @@ Branch: `feat/golden-avatar-block`. Migrate `src/app/admin/video-calls/page.tsx`
 Do NOT touch `src/components/GoldenFocus/*` or `supabase/functions/daily-call/*` — another Colony agent is live there (see commit 638f58ec9 surface).
 
 ## Sweep plan (post-proof)
-Real win = sweeping all 98 `/@${username}` + 50 avatar sites. Name a codemod follow-up in the first PR body so the broom actually swings.
+Real win = sweeping all 105 `/@${username}` + 27 UserAvatar + 8 BannedAvatar sites. Codemod-driven, phased:
+- **P0** primitive + tests + `GOLDEN_AVATAR_FIELDS` + `<GoldenAvatarGroup>` (Zang locked, pick 4A — same block, same PR)
+- **P1** proof migration: `src/app/admin/video-calls/page.tsx` (UserList ~L405-430, caller→callee cell ~L270)
+- **P2** codemod sweep across `Message/index.tsx`, chat list, inbox, super-inbox, notifications (~40 files, one PR)
+- **P3** SEO + city landing + profile-card grids (~40 files, incremental — heavier `UserCard` compositions stay grandfathered)
+- **P4** ESLint rule banning raw `/@${` and `href="/@"` under `src/components|src/app` to lock in no-regression
+
+Visual reference: <https://p69.io/designs/2026/golden-avatar-primitive>
+Spec doc (canonical): `docs/superpowers/specs/2026-04-30-golden-avatar-design.md` (in p69 repo)
 
 ## Parking lot — NOT this scope
 - **GoldenID** = separate product direction (cross-galaxy SSO, Screening Passport carrier, "Sign in with GoldenID" button for 3rd parties). GoldenAvatar becomes its visual render inside p69. Decided (Zang, 2026-04-24): stay focused on component first, revisit ID-as-product later.
