@@ -20,7 +20,7 @@
 - [madame](../blocks/madame/README.md) — Classified ad autoposting engine (golden block, app-agnostic)
 - [astrosync](../blocks/astrosync/README.md) — Block 13: adaptive energy-aware product layer
 - [zemium](projects/zemium.md) — mobile app; three atomic pillars (Chat/Bookings/Signals); first golden-blocks consumer; Slice A in extraction phase from p69 worktree
-- [golden-avatar](projects/golden-avatar.md) — `<GoldenAvatar>` + `GOLDEN_AVATAR_FIELDS` block; replaces ~98 hand-rolled `/@${username}` + ~50 avatar sites in p69; server-default, client-shim for online dot
+- [golden-avatar](projects/golden-avatar.md) — `<GoldenAvatar>` + `<GoldenAvatarGroup>` + `GOLDEN_AVATAR_FIELDS` block; replaces 105 `/@${username}` + 27 UserAvatar + 8 BannedAvatar sites in p69; client-only by inheritance, lazy `useChatStore` subscribe only when `showOnline`
 
 ## Reference
 - [Sibling repo map](reference/sibling_repos.md) — what each repo in ~/ does and which siblings expose reusable infra

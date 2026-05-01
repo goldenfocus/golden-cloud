@@ -60,6 +60,37 @@ else
   ok "symlinked — make sure ~/.local/bin is on \$PATH (fish config in the startup kit handles this)"
 fi
 
+# 5 — Wire Golden Focus Intel (shared AI memory) into Claude project memory dirs
+say "Wiring Golden Focus Intel into per-project memory dirs"
+if [ -x "$HOME/golden-cloud/laptop/gc-memory-sync.sh" ]; then
+  bash "$HOME/golden-cloud/laptop/gc-memory-sync.sh" || \
+    ok "memory sync skipped (Claude Code not yet run on this laptop — re-run later)"
+else
+  ok "no gc-memory-sync.sh on disk yet — skipping"
+fi
+
+# 6 — Install the auto-sync Stop hook in ~/.claude/settings.json (idempotent)
+say "Installing gc-memory auto-sync Stop hook"
+if [ -x "$HOME/golden-cloud/laptop/install-claude-stop-hook.sh" ]; then
+  bash "$HOME/golden-cloud/laptop/install-claude-stop-hook.sh" || \
+    ok "stop-hook install skipped (jq missing? check ~/.claude/settings.json manually)"
+else
+  ok "no install-claude-stop-hook.sh on disk yet — skipping"
+fi
+
+# 7 — Final reminder: set whoami so AIs know whose keyboard this is
+WHOAMI_FILE="$HOME/golden-cloud/laptop/whoami.txt"
+if [ ! -f "$WHOAMI_FILE" ] || [ ! -s "$WHOAMI_FILE" ]; then
+  say "ACTION REQUIRED — set this laptop's identity"
+  cat <<EOF
+  This laptop has no \`whoami.txt\` yet. Run ONE of:
+    echo "yan" > $WHOAMI_FILE
+    echo "jr"  > $WHOAMI_FILE
+    echo "<your-name>" > $WHOAMI_FILE   # if you're a new teammate
+  Then commit + push so other laptops know who you are.
+EOF
+fi
+
 cat <<'EOF'
 
 ─────────────────────────────────────────────────
