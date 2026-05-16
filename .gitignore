@@ -1,1 +1,3 @@
 .wrangler/
+claude-code/llms.txt.cache
+claude-code/llms.txt.new
