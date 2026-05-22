@@ -43,6 +43,7 @@ Karpathy's "ask when uncertain" fires only here.
 
 - **Tier A:** migrations, RLS, `calculate_*` / `*_commission*` / `*_payout*`, financial triggers, constraint changes, CI/CD config, CLAUDE.md content, Sentry config, `.claude/{agents,hooks,commands,skills}/**`
 - **Tier B in Phase 1:** TypeScript under `bookings/`, `vouchers/`, `wallet/`, `shifts/`, `cashflow/`, `credit*/`
+- **Customer promises** — any UPDATE/DELETE/migration that could break a stated promise to users (e.g., "credits never expire," "free forever," "your data stays private"). Even if the diff looks Tier C, the promise makes it Sacred. Surface the promise and confirm before executing.
 - Force pushes (banned on main outright), `--no-verify`, destructive DB ops
 - External messages (PR comments, Slack sends, emails)
 - Mid design exploration without an approved direction
