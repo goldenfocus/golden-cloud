@@ -1,0 +1,6 @@
+# Never commit biometric voice samples or the multi-GB model venv.
+*.wav
+xtts-venv/
+
+# Real config (may hold personal paths). Only the .example template is tracked.
+config.env
