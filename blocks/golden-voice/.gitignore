@@ -1,6 +1,13 @@
-# Never commit biometric voice samples or the multi-GB model venv.
+# golden-voice — never commit biometrics, generated audio, the model venv, or user state.
 *.wav
+*.opus
+*.mp3
+*.aiff
+voices/
+cache/
+library/
+queue/
 xtts-venv/
-
-# Real config (may hold personal paths). Only the .example template is tracked.
+play-audio.json
 config.env
+__pycache__/

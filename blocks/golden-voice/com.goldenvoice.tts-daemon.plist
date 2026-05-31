@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- com.goldenvoice.tts-daemon.plist — launchd template for the resident XTTS daemon.
+     Install:
+       sed "s#__HOME__#$HOME#g" com.goldenvoice.tts-daemon.plist \
+         > ~/Library/LaunchAgents/com.goldenvoice.tts-daemon.plist
+       launchctl load ~/Library/LaunchAgents/com.goldenvoice.tts-daemon.plist
+     (__HOME__ is replaced with your real home directory.) -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.goldenvoice.tts-daemon</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__HOME__/.claude/local-tts/xtts-venv/bin/python</string>
+    <string>__HOME__/.claude/local-tts/bin/tts_daemon.py</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>__HOME__/.claude/local-tts/queue/tts-daemon.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/.claude/local-tts/queue/tts-daemon.log</string>
+</dict></plist>

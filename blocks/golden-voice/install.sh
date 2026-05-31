@@ -1,9 +1,6 @@
 #!/bin/bash
-# golden-voice/install.sh — one-command installer for local, voice-cloned TTS.
-#
-# Sets up an on-device text-to-speech tool for Claude Code (and anything else):
-#   - macOS `say` works instantly, zero install
-#   - your own XTTS-v2 voice clone drops in with a one-variable flip
+# golden-voice/install.sh — one-command installer for local, voice-cloned TTS
+# with terminal listen-mode (resident daemon, fx, queue, mpv controls, export).
 #
 # Free forever, no API keys, no monthly bill. Idempotent — safe to re-run.
 #
@@ -14,12 +11,12 @@ BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 TTS_DIR="$HOME/.claude/local-tts"
 VENV_DIR="$TTS_DIR/xtts-venv"
 
-echo "=== golden-voice — local, voice-cloned TTS ==="
+echo "=== golden-voice — local, voice-cloned TTS + terminal listen-mode ==="
 echo
 
 # --- prerequisites ---
 if [[ "$OSTYPE" != "darwin"* ]]; then
-  echo "error: macOS only (uses CoreAudio, say, afplay)" >&2
+  echo "error: macOS only (uses CoreAudio, say, mpv, afplay)" >&2
   exit 1
 fi
 
@@ -28,8 +25,10 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 1
 fi
 
-# sox powers clean CoreAudio recording + optional effects; ffmpeg for playback/levels.
-for tool in sox ffmpeg; do
+# sox  → clean CoreAudio recording + fx chains
+# mpv  → playback engine with live IPC controls (pause / ff / 2x / stop)
+# ffmpeg → loudness-normalization + Opus/MP3 encoding for exports
+for tool in sox mpv ffmpeg; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "note: '$tool' not found — installing..."
     brew install "$tool" || echo "warning: 'brew install $tool' failed." >&2
@@ -37,18 +36,24 @@ for tool in sox ffmpeg; do
 done
 
 # --- copy the tool into place ---
-mkdir -p "$TTS_DIR"
-cp "$BLOCK_DIR/local-tts.sh"    "$TTS_DIR/local-tts.sh"
-cp "$BLOCK_DIR/record-voice.sh" "$TTS_DIR/record-voice.sh"
-cp "$BLOCK_DIR/XTTS-LATER.md"   "$TTS_DIR/XTTS-LATER.md"
-chmod +x "$TTS_DIR/local-tts.sh" "$TTS_DIR/record-voice.sh"
-echo "installed scripts to $TTS_DIR"
+mkdir -p "$TTS_DIR" "$TTS_DIR/bin"
+cp "$BLOCK_DIR/local-tts.sh"                   "$TTS_DIR/local-tts.sh"
+cp "$BLOCK_DIR/record-voice.sh"                "$TTS_DIR/record-voice.sh"
+cp "$BLOCK_DIR/tts-daemon.sh"                  "$TTS_DIR/tts-daemon.sh"
+cp "$BLOCK_DIR/com.goldenvoice.tts-daemon.plist" "$TTS_DIR/com.goldenvoice.tts-daemon.plist"
+cp "$BLOCK_DIR/XTTS-LATER.md"                  "$TTS_DIR/XTTS-LATER.md"
+cp "$BLOCK_DIR"/bin/*.sh "$BLOCK_DIR"/bin/*.py "$TTS_DIR/bin/"
+chmod +x "$TTS_DIR/local-tts.sh" "$TTS_DIR/record-voice.sh" "$TTS_DIR/tts-daemon.sh" \
+         "$TTS_DIR"/bin/*.sh
+echo "installed scripts to $TTS_DIR (+ bin/)"
 
-# --- optional: install the `gv` fish convenience command ---
+# --- install the `gv` fish command ---
 if [ -f "$BLOCK_DIR/gv.fish" ] && command -v fish >/dev/null 2>&1; then
   mkdir -p "$HOME/.config/fish/functions"
   cp "$BLOCK_DIR/gv.fish" "$HOME/.config/fish/functions/gv.fish"
-  echo "installed 'gv' fish command (gv say \"...\" · gv save <name> \"...\" · gv <name>)"
+  echo "installed 'gv' fish command — run 'gv' for the cheat sheet"
+elif [ -f "$BLOCK_DIR/gv.fish" ]; then
+  echo "note: fish not found — skipped 'gv' (install fish, then copy gv.fish to ~/.config/fish/functions/)"
 fi
 
 # --- seed config from the template (never clobber an existing config) ---
@@ -97,31 +102,36 @@ cat <<DONE
 
 === done ===
 
-Two backends, one pipeline:
-  - say  (default) → macOS built-in voice, works right now
-  - xtts            → YOUR voice, cloned locally, free, no API keys
+Next steps:
 
-Speak something:
-  $TTS_DIR/local-tts.sh "hello from my own machine"
-  gv say "hello from my own machine"          # if you use fish
+  1. Record your voice (more clips = a better clone):
+       gv record
+     (saves under $TTS_DIR/voices/me/samples/ — stays on YOUR machine, never committed)
 
-To use YOUR voice (the whole point):
-  1. Record 15-30s of yourself talking naturally:
-       $TTS_DIR/record-voice.sh
-     (saves to $TTS_DIR/my-voice.wav — stays on YOUR machine, never committed)
-  2. Flip the backend in $TTS_DIR/config.env:
-       LOCAL_TTS_BACKEND=xtts
+  2. Start the resident daemon (model loads once ~20s, then synth ~2s):
+       bash $TTS_DIR/tts-daemon.sh start
+
   3. Speak in your voice:
-       $TTS_DIR/local-tts.sh --test
+       gv say "hello from my own machine"
+
+  Live controls while it's talking:  gv pause · gv ff · gv x2 · gv stop
+
+Optional — autostart the daemon at login (launchd):
+  sed "s#__HOME__#\$HOME#g" $TTS_DIR/com.goldenvoice.tts-daemon.plist \\
+    > ~/Library/LaunchAgents/com.goldenvoice.tts-daemon.plist
+  launchctl load ~/Library/LaunchAgents/com.goldenvoice.tts-daemon.plist
+
+Optional — Claude Code integration (manual; the installer won't touch your settings):
+  - Skill:  cp $BLOCK_DIR/claude-assets/play-audio.md  ~/.claude/commands/
+  - Hook:   cp $BLOCK_DIR/claude-assets/play-audio-stop.sh ~/.claude/hooks/
+            then register it as a Stop hook in ~/.claude/settings.json and
+            opt in with 'gv auto on'  (auto-narration is OFF by default).
+  See README.md → "Claude Code integration" for the exact snippet.
 
 Speed notes:
-  - Identical phrases are cached (~/.claude/local-tts/cache) → repeats are instant.
-  - First xtts run downloads the ~1.8GB XTTS-v2 model once.
-  - A brand-new phrase costs ~20s of model cold-load; a resident tts-server removes that.
+  - Identical phrases are content-cached → repeats are instant.
+  - First synth downloads the ~1.8GB XTTS-v2 model once.
+  - The resident daemon removes the ~20s cold-load from every subsequent call.
 
-Reusable named clips (great for hooks):
-  gv save push-done "Pushed clean. Another one in the bag."
-  gv push-done        # instant, anywhere
-
-See $TTS_DIR/XTTS-LATER.md for details.
+See $TTS_DIR/XTTS-LATER.md and README.md for details.
 DONE

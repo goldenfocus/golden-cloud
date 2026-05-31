@@ -1,14 +1,14 @@
 {
   "name": "golden-voice",
-  "version": "0.1.0",
-  "summary": "Clone your voice locally with XTTS v2 and get a one-command TTS that sounds like you — free forever, no API keys.",
+  "version": "0.2.0",
+  "summary": "Clone your voice locally with XTTS v2 and hear your terminal speak it — resident daemon, live pause/ff/2x/stop, fx, export. Free forever, no API keys, 100% local.",
   "kind": "code",
   "language": "bash",
   "platform": "macOS",
   "license": "MIT",
-  "inputs": ["text (arg or stdin)"],
-  "outputs": ["spoken audio (macOS `say` or your XTTS voice clone)"],
-  "dependencies": ["python@3.11 (xtts backend)", "coqui-tts (xtts backend)", "sox (recording + effects)", "ffmpeg (optional playback/fallback)"],
-  "tags": ["voice", "tts", "python", "free", "macos", "local"],
+  "inputs": ["text (arg, stdin, clipboard, or last assistant turn)"],
+  "outputs": ["spoken audio in your local XTTS voice clone (or macOS `say`)", "exported library clips (wav + opus + mp3, -16 LUFS) + manifest.json"],
+  "dependencies": ["python@3.11 (xtts backend)", "coqui-tts (xtts backend)", "sox (recording + fx)", "mpv (playback + live controls)", "ffmpeg (export/normalize)", "ollama (optional, local summaries)"],
+  "tags": ["voice", "tts", "voice-clone", "xtts", "python", "free", "macos", "local", "claude-code"],
   "public": true
 }

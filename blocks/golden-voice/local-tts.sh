@@ -64,41 +64,69 @@ case "$BACKEND" in
     ;;
 
   xtts)
-    # --- your own cloned voice, fully local via Coqui XTTS-v2 (installed in a venv) ---
-    TTS_BIN="${LOCAL_TTS_XTTS_BIN:-$HOME/.claude/local-tts/xtts-venv/bin/tts}"
-    if [ ! -x "$TTS_BIN" ]; then
-      echo "[local-tts] xtts not installed — see ~/.claude/local-tts/XTTS-LATER.md" >&2
-      exit 3
+    BASE="$HOME/.claude/local-tts"
+    # --- speaker wavs from the active voice profile (multi-sample average), with fallbacks ---
+    PROFILE="${LOCAL_TTS_VOICE_PROFILE:-me}"
+    SDIR="$BASE/voices/$PROFILE/samples"
+    spk=()
+    if compgen -G "$SDIR/*.wav" >/dev/null 2>&1; then
+      for f in "$SDIR"/*.wav; do spk+=("$f"); done
+    elif compgen -G "$BASE/samples/*.wav" >/dev/null 2>&1; then          # legacy flat samples/
+      for f in "$BASE/samples"/*.wav; do spk+=("$f"); done
+    else
+      spk=("${LOCAL_TTS_SPEAKER_WAV:-$BASE/my-voice.wav}")
     fi
-    SPK="${LOCAL_TTS_SPEAKER_WAV:-$HOME/.claude/local-tts/my-voice.wav}"
-    [ -f "$SPK" ] || { echo "[local-tts] no voice sample at $SPK (record one: record-voice.sh)" >&2; exit 3; }
+    [ -f "${spk[0]}" ] || { echo "[local-tts] no voice sample — record one: gv record" >&2; exit 3; }
 
-    # --- content-addressed cache: identical text+voice replays instantly (skips the ~25s synth) ---
-    CACHE_DIR="$HOME/.claude/local-tts/cache"; mkdir -p "$CACHE_DIR"
-    key=$(printf 'xtts|%s|%s' "$SPK" "$TEXT" | shasum -a 256 | cut -c1-16)
+    # --- fx preset (sox chain applied after synth) ---
+    FX_PRESET="${LOCAL_TTS_FX:-$("$BASE/xtts-venv/bin/python" "$BASE/bin/pa-settings.py" get fxPreset 2>/dev/null)}"
+    case "$FX_PRESET" in
+      warm)   FX="bass +3 gain -1" ;;
+      reverb) FX="reverb 22 gain -1" ;;
+      echo)   FX="echo 0.8 0.9 120 0.4" ;;
+      *)      FX="" ;;
+    esac
+    # per-voice pitch (cents) from voice.json, if present
+    VJSON="$BASE/voices/$PROFILE/voice.json"
+    if [ -f "$VJSON" ]; then
+      PITCH=$("$BASE/xtts-venv/bin/python" -c "import json,sys;print(json.load(open('$VJSON')).get('pitch',0))" 2>/dev/null)
+      [ -n "${PITCH:-}" ] && [ "$PITCH" != "0" ] && FX="pitch $PITCH $FX"
+    fi
+
+    # --- content-addressed cache (voice content + fx + text) ---
+    CACHE_DIR="$BASE/cache"; mkdir -p "$CACHE_DIR"
+    spk_sig=$(stat -f '%N:%z:%m' "${spk[@]}" 2>/dev/null | shasum -a 256 | cut -c1-12)
+    key=$(printf 'xtts|%s|%s|%s' "$spk_sig" "$FX" "$TEXT" | shasum -a 256 | cut -c1-16)
     cached="$CACHE_DIR/$key.wav"
 
     if [ "${LOCAL_TTS_NOCACHE:-0}" = "1" ] || [ ! -s "$cached" ]; then
-      # COQUI_TOS_AGREED accepts the model license non-interactively. First run pulls ~1.8GB.
-      COQUI_TOS_AGREED=1 "$TTS_BIN" \
-        --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
-        --speaker_wav "$SPK" --language_idx en \
-        --text "$TEXT" --out_path "$cached" >/dev/null 2>&1
+      raw="$cached"; [ -n "$FX" ] && raw="$(mktemp).wav"
+      # prefer the resident daemon; fall back to a per-call CLI invocation
+      if curl -sf -m 2 http://127.0.0.1:5111/health >/dev/null 2>&1; then
+        spk_json=$(printf '%s\n' "${spk[@]}" | "$BASE/xtts-venv/bin/python" -c "import sys,json;print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+        curl -sf -m 120 -X POST http://127.0.0.1:5111/synth -H 'Content-Type: application/json' \
+          -d "$(printf '{"text":%s,"speaker_wavs":%s,"language":"en","out":%s}' \
+                "$(printf '%s' "$TEXT" | "$BASE/xtts-venv/bin/python" -c 'import sys,json;print(json.dumps(sys.stdin.read()))')" \
+                "$spk_json" \
+                "$(printf '%s' "$raw" | "$BASE/xtts-venv/bin/python" -c 'import sys,json;print(json.dumps(sys.stdin.read()))')")" >/dev/null
+      else
+        TTS_BIN="${LOCAL_TTS_XTTS_BIN:-$BASE/xtts-venv/bin/tts}"
+        COQUI_TOS_AGREED=1 "$TTS_BIN" --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
+          --speaker_wav "${spk[@]}" --language_idx en --text "$TEXT" --out_path "$raw" >/dev/null 2>&1
+      fi
+      if [ -n "$FX" ] && [ -s "$raw" ]; then sox "$raw" "$cached" $FX 2>/dev/null; rm -f "$raw"; fi
       [ -s "$cached" ] && printf '%s\t%s\n' "$key" "$TEXT" >> "$CACHE_DIR/index.tsv"
     fi
 
-    if [ ! -s "$cached" ]; then
-      echo "[local-tts] xtts produced no audio (model still loading/downloading?)" >&2
-      exit 1
+    [ -s "$cached" ] || { echo "[local-tts] xtts produced no audio" >&2; exit 1; }
+
+    if [ "${LOCAL_TTS_NOPLAY:-0}" = "1" ]; then
+      printf '%s\n' "$cached"          # emit the path for callers (player/export)
+    elif command -v mpv >/dev/null 2>&1; then
+      mpv --no-video --really-quiet "$cached"
+    else
+      afplay "$cached"
     fi
-    # optionally also keep it under a friendly name (for reuse in hooks etc.)
-    if [ -n "${LOCAL_TTS_SAVE_AS:-}" ]; then
-      mkdir -p "$HOME/.claude/local-tts/clips"
-      cp "$cached" "$HOME/.claude/local-tts/clips/${LOCAL_TTS_SAVE_AS}.wav"
-    fi
-    if [ "${LOCAL_TTS_NOPLAY:-0}" = "1" ]; then :
-    elif command -v ffplay >/dev/null 2>&1; then ffplay -autoexit -nodisp -loglevel quiet "$cached"
-    else afplay "$cached"; fi
     ;;
 
   *)
