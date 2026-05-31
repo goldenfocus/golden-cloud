@@ -28,19 +28,28 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 1
 fi
 
-# sox powers clean recording + optional effects; recommend (don't hard-fail).
-if ! command -v sox >/dev/null 2>&1; then
-  echo "note: 'sox' not found — installing (clean CoreAudio capture + effects)..."
-  brew install sox || echo "warning: 'brew install sox' failed; recording will fall back to ffmpeg." >&2
-fi
+# sox powers clean CoreAudio recording + optional effects; ffmpeg for playback/levels.
+for tool in sox ffmpeg; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "note: '$tool' not found — installing..."
+    brew install "$tool" || echo "warning: 'brew install $tool' failed." >&2
+  fi
+done
 
 # --- copy the tool into place ---
 mkdir -p "$TTS_DIR"
-cp "$BLOCK_DIR/local-tts.sh"   "$TTS_DIR/local-tts.sh"
+cp "$BLOCK_DIR/local-tts.sh"    "$TTS_DIR/local-tts.sh"
 cp "$BLOCK_DIR/record-voice.sh" "$TTS_DIR/record-voice.sh"
-cp "$BLOCK_DIR/XTTS-LATER.md"  "$TTS_DIR/XTTS-LATER.md"
+cp "$BLOCK_DIR/XTTS-LATER.md"   "$TTS_DIR/XTTS-LATER.md"
 chmod +x "$TTS_DIR/local-tts.sh" "$TTS_DIR/record-voice.sh"
 echo "installed scripts to $TTS_DIR"
+
+# --- optional: install the `gv` fish convenience command ---
+if [ -f "$BLOCK_DIR/gv.fish" ] && command -v fish >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/fish/functions"
+  cp "$BLOCK_DIR/gv.fish" "$HOME/.config/fish/functions/gv.fish"
+  echo "installed 'gv' fish command (gv say \"...\" · gv save <name> \"...\" · gv <name>)"
+fi
 
 # --- seed config from the template (never clobber an existing config) ---
 if [ ! -f "$TTS_DIR/config.env" ]; then
@@ -50,28 +59,39 @@ else
   echo "config.env already present — keeping it"
 fi
 
-# --- Python 3.11 venv + coqui-tts (the XTTS engine) ---
+# --- Python 3.11 venv + the FULL XTTS stack ---
 # macOS system Python is 3.9; XTTS-v2 wants 3.11.
 if ! command -v python3.11 >/dev/null 2>&1; then
   echo "installing python@3.11 via brew (XTTS needs it; system python is 3.9)..."
   brew install python@3.11
 fi
 
-if [ ! -x "$VENV_DIR/bin/tts" ]; then
-  echo "creating XTTS venv at $VENV_DIR ..."
-  python3.11 -m venv "$VENV_DIR"
-  echo "installing coqui-tts (this pulls torch — a few minutes the first time)..."
+# coqui-tts does NOT bundle torch/torchcodec, and pins nothing on transformers —
+# all four pieces are required or the `tts` CLI breaks on import:
+#   * torch + torchaudio        — the engine
+#   * transformers >=4.43,<5    — 5.x removed isin_mps_friendly (ImportError)
+#   * coqui-tts[codec]          — torchcodec, required for audio IO on torch >=2.9
+if ! "$VENV_DIR/bin/tts" --help >/dev/null 2>&1; then
+  echo "setting up the XTTS engine (first time pulls torch — a few minutes)..."
+  [ -d "$VENV_DIR" ] || python3.11 -m venv "$VENV_DIR"
   "$VENV_DIR/bin/pip" install --quiet --upgrade pip
-  "$VENV_DIR/bin/pip" install coqui-tts
-  echo "XTTS engine ready: $VENV_DIR/bin/tts"
+  "$VENV_DIR/bin/pip" install --quiet \
+    'coqui-tts[codec]' \
+    torch torchaudio \
+    'transformers>=4.43,<5'
+  if "$VENV_DIR/bin/tts" --help >/dev/null 2>&1; then
+    echo "XTTS engine ready: $VENV_DIR/bin/tts"
+  else
+    echo "warning: XTTS CLI still not importing — inspect the pip output above." >&2
+  fi
 else
-  echo "XTTS venv already present — keeping it"
+  echo "XTTS engine already working — keeping it"
 fi
 
 # --- smoke test the instant backend ---
 echo
 echo "testing the 'say' backend..."
-"$TTS_DIR/local-tts.sh" --test 2>/dev/null || true
+LOCAL_TTS_BACKEND=say "$TTS_DIR/local-tts.sh" --test 2>/dev/null || true
 
 cat <<DONE
 
@@ -79,11 +99,11 @@ cat <<DONE
 
 Two backends, one pipeline:
   - say  (default) → macOS built-in voice, works right now
-  - xtts (later)   → YOUR voice, cloned locally, free, no API keys
+  - xtts            → YOUR voice, cloned locally, free, no API keys
 
 Speak something:
   $TTS_DIR/local-tts.sh "hello from my own machine"
-  echo "piped text" | $TTS_DIR/local-tts.sh
+  gv say "hello from my own machine"          # if you use fish
 
 To use YOUR voice (the whole point):
   1. Record 15-30s of yourself talking naturally:
@@ -94,5 +114,14 @@ To use YOUR voice (the whole point):
   3. Speak in your voice:
        $TTS_DIR/local-tts.sh --test
 
-First xtts run downloads the ~1.8GB XTTS-v2 model once. See $TTS_DIR/XTTS-LATER.md.
+Speed notes:
+  - Identical phrases are cached (~/.claude/local-tts/cache) → repeats are instant.
+  - First xtts run downloads the ~1.8GB XTTS-v2 model once.
+  - A brand-new phrase costs ~20s of model cold-load; a resident tts-server removes that.
+
+Reusable named clips (great for hooks):
+  gv save push-done "Pushed clean. Another one in the bag."
+  gv push-done        # instant, anywhere
+
+See $TTS_DIR/XTTS-LATER.md for details.
 DONE

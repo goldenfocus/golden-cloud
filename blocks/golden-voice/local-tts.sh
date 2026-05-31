@@ -72,19 +72,33 @@ case "$BACKEND" in
     fi
     SPK="${LOCAL_TTS_SPEAKER_WAV:-$HOME/.claude/local-tts/my-voice.wav}"
     [ -f "$SPK" ] || { echo "[local-tts] no voice sample at $SPK (record one: record-voice.sh)" >&2; exit 3; }
-    out="$(mktemp).wav"
-    # COQUI_TOS_AGREED accepts the model license non-interactively. First run pulls ~1.8GB.
-    COQUI_TOS_AGREED=1 "$TTS_BIN" \
-      --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
-      --speaker_wav "$SPK" --language_idx en \
-      --text "$TEXT" --out_path "$out" >/dev/null 2>&1
-    if [ -s "$out" ]; then
-      if command -v ffplay >/dev/null 2>&1; then ffplay -autoexit -nodisp -loglevel quiet "$out"
-      else afplay "$out"; fi
-    else
-      echo "[local-tts] xtts produced no audio (first run still downloading the ~1.8GB model?)" >&2
+
+    # --- content-addressed cache: identical text+voice replays instantly (skips the ~25s synth) ---
+    CACHE_DIR="$HOME/.claude/local-tts/cache"; mkdir -p "$CACHE_DIR"
+    key=$(printf 'xtts|%s|%s' "$SPK" "$TEXT" | shasum -a 256 | cut -c1-16)
+    cached="$CACHE_DIR/$key.wav"
+
+    if [ "${LOCAL_TTS_NOCACHE:-0}" = "1" ] || [ ! -s "$cached" ]; then
+      # COQUI_TOS_AGREED accepts the model license non-interactively. First run pulls ~1.8GB.
+      COQUI_TOS_AGREED=1 "$TTS_BIN" \
+        --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
+        --speaker_wav "$SPK" --language_idx en \
+        --text "$TEXT" --out_path "$cached" >/dev/null 2>&1
+      [ -s "$cached" ] && printf '%s\t%s\n' "$key" "$TEXT" >> "$CACHE_DIR/index.tsv"
     fi
-    rm -f "$out"
+
+    if [ ! -s "$cached" ]; then
+      echo "[local-tts] xtts produced no audio (model still loading/downloading?)" >&2
+      exit 1
+    fi
+    # optionally also keep it under a friendly name (for reuse in hooks etc.)
+    if [ -n "${LOCAL_TTS_SAVE_AS:-}" ]; then
+      mkdir -p "$HOME/.claude/local-tts/clips"
+      cp "$cached" "$HOME/.claude/local-tts/clips/${LOCAL_TTS_SAVE_AS}.wav"
+    fi
+    if [ "${LOCAL_TTS_NOPLAY:-0}" = "1" ]; then :
+    elif command -v ffplay >/dev/null 2>&1; then ffplay -autoexit -nodisp -loglevel quiet "$cached"
+    else afplay "$cached"; fi
     ;;
 
   *)

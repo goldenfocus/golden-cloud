@@ -134,3 +134,20 @@ this local engine instead of ElevenLabs.
 ---
 
 MIT licensed. Part of [Golden Blocks](https://github.com/goldenfocus/golden-blocks).
+
+## Speed & the `gv` command
+
+Identical phrases are cached (`~/.claude/local-tts/cache/`): the first render of a phrase
+costs ~20s of model load, every repeat after is **instant**.
+
+If you use fish, the installer drops a `gv` helper:
+
+```fish
+gv say "ship it"                 # speak live (cached → repeats are instant)
+gv save push-done "Nice push."   # mint a reusable named clip
+gv push-done                     # play it instantly, anywhere (great for git hooks)
+gv                               # list clips + cache count
+```
+
+A brand-new phrase still pays a ~20s model cold-load per call. For always-fast synth,
+run a resident `tts-server` (loads the model once) — a planned add-on.
