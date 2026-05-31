@@ -101,18 +101,32 @@ case "$BACKEND" in
 
     if [ "${LOCAL_TTS_NOCACHE:-0}" = "1" ] || [ ! -s "$cached" ]; then
       raw="$cached"; [ -n "$FX" ] && raw="$(mktemp).wav"
-      # prefer the resident daemon; fall back to a per-call CLI invocation
-      if curl -sf -m 2 http://127.0.0.1:5111/health >/dev/null 2>&1; then
-        spk_json=$(printf '%s\n' "${spk[@]}" | "$BASE/xtts-venv/bin/python" -c "import sys,json;print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
-        curl -sf -m 120 -X POST http://127.0.0.1:5111/synth -H 'Content-Type: application/json' \
-          -d "$(printf '{"text":%s,"speaker_wavs":%s,"language":"en","out":%s}' \
-                "$(printf '%s' "$TEXT" | "$BASE/xtts-venv/bin/python" -c 'import sys,json;print(json.dumps(sys.stdin.read()))')" \
-                "$spk_json" \
-                "$(printf '%s' "$raw" | "$BASE/xtts-venv/bin/python" -c 'import sys,json;print(json.dumps(sys.stdin.read()))')")" >/dev/null
-      else
-        TTS_BIN="${LOCAL_TTS_XTTS_BIN:-$BASE/xtts-venv/bin/tts}"
-        COQUI_TOS_AGREED=1 "$TTS_BIN" --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
-          --speaker_wav "${spk[@]}" --language_idx en --text "$TEXT" --out_path "$raw" >/dev/null 2>&1
+      PY="$BASE/xtts-venv/bin/python"
+      jstr() { printf '%s' "$1" | "$PY" -c 'import sys,json;print(json.dumps(sys.stdin.read()))'; }
+      spk_json=$(printf '%s\n' "${spk[@]}" | "$PY" -c "import sys,json;print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+      daemon_up=0; curl -sf -m 2 http://127.0.0.1:5111/health >/dev/null 2>&1 && daemon_up=1
+      TTS_BIN="${LOCAL_TTS_XTTS_BIN:-$BASE/xtts-venv/bin/tts}"
+      # XTTS-v2 garbles/truncates past ~250 chars/call — split into safe chunks,
+      # synth each (daemon fast-path or CLI fallback), then concatenate with sox.
+      parts=()
+      while IFS= read -r chunk; do
+        [ -n "${chunk// /}" ] || continue
+        part="$(mktemp).wav"
+        if [ "$daemon_up" = 1 ]; then
+          curl -sf -m 120 -X POST http://127.0.0.1:5111/synth -H 'Content-Type: application/json' \
+            -d "$(printf '{"text":%s,"speaker_wavs":%s,"language":"en","out":%s}' \
+                  "$(jstr "$chunk")" "$spk_json" "$(jstr "$part")")" >/dev/null
+        else
+          COQUI_TOS_AGREED=1 "$TTS_BIN" --model_name "tts_models/multilingual/multi-dataset/xtts_v2" \
+            --speaker_wav "${spk[@]}" --language_idx en --text "$chunk" --out_path "$part" >/dev/null 2>&1
+        fi
+        [ -s "$part" ] && parts+=("$part") || rm -f "$part"
+      done < <("$PY" "$BASE/bin/chunk_text.py" "$TEXT")
+      # assemble synthesized parts into $raw
+      if [ "${#parts[@]}" -eq 1 ]; then
+        mv "${parts[0]}" "$raw"
+      elif [ "${#parts[@]}" -gt 1 ]; then
+        sox "${parts[@]}" "$raw" 2>/dev/null; rm -f "${parts[@]}"
       fi
       if [ -n "$FX" ] && [ -s "$raw" ]; then sox "$raw" "$cached" $FX 2>/dev/null; rm -f "$raw"; fi
       [ -s "$cached" ] && printf '%s\t%s\n' "$key" "$TEXT" >> "$CACHE_DIR/index.tsv"
