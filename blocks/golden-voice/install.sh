@@ -78,7 +78,9 @@ fi
 #   * coqui-tts[codec]          — torchcodec, required for audio IO on torch >=2.9
 if ! "$VENV_DIR/bin/tts" --help >/dev/null 2>&1; then
   echo "setting up the XTTS engine (first time pulls torch — a few minutes)..."
-  [ -d "$VENV_DIR" ] || python3.11 -m venv "$VENV_DIR"
+  # Guard on a working pip, not just the dir: an interrupted or concurrent run
+  # can leave $VENV_DIR present but pip-less, which would crash the next line.
+  [ -x "$VENV_DIR/bin/pip" ] || python3.11 -m venv "$VENV_DIR"
   "$VENV_DIR/bin/pip" install --quiet --upgrade pip
   "$VENV_DIR/bin/pip" install --quiet \
     'coqui-tts[codec]' \
