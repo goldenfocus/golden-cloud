@@ -58,7 +58,7 @@ function gv --description 'golden-voice: say/record/play/export + live controls'
             # list the greeting set, then preview the actual open-terminal sequence
             set -l files (ls $base/greetings/*/*.mp3 2>/dev/null)
             test -z "$files"; and begin; echo "no greeting voices — gv greet <name> \"text\""; return 0; end
-            echo "🎙️  greeting voices (super-skills-activated always plays first):"
+            echo "🎙️  greeting voices (terminal plays ONE at random on open):"
             for f in $files
                 set -l dur (ffprobe -v error -show_entries format=duration -of csv=p=0 $f 2>/dev/null)
                 printf "   %-30s (%ss)\n" (basename $f .mp3) (string sub -l 4 -- $dur)
