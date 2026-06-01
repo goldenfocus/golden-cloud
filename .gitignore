@@ -1,3 +1,6 @@
 .wrangler/
 claude-code/llms.txt.cache
 claude-code/llms.txt.new
+
+# secrets live ONLY in the private golden-vault repo — never here
+/secrets/
