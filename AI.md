@@ -8,12 +8,12 @@ When the user says "put this in Golden Cloud" (or any alias above), **figure out
 
 | If the content is… | It goes in… | How |
 |---|---|---|
-| API key, token, credential, `.env` contents, anything secret | `~/golden-cloud/secrets/` | `echo "$VAL" \| gc-secret set <file> <KEY>` |
-| Prompt, template, system message | `~/golden-cloud/prompts/` or `~/golden-cloud-public/prompts/` | plain file write + git commit/push |
-| Note, idea, journal entry | `~/golden-cloud/notes/` (private) or `~/golden-cloud-public/notes/` (public) | plain file + commit/push |
-| Reusable, API-first, tested module | `~/golden-cloud/blocks/<name>/` (private) or `~/golden-cloud-public/blocks/<name>/` (public) | `./new-block.sh <name>` |
+| API key, token, credential, `.env` contents, anything secret | `~/golden-vault/secrets/` | `echo "$VAL" \| gc-secret set <file> <KEY>` |
+| Prompt, template, system message | `~/golden-cloud/prompts/` or `~/golden-cloud/prompts/` | plain file write + git commit/push |
+| Note, idea, journal entry | `~/golden-cloud/notes/` (private) or `~/golden-cloud/notes/` (public) | plain file + commit/push |
+| Reusable, API-first, tested module | `~/golden-cloud/blocks/<name>/` (private) or `~/golden-cloud/blocks/<name>/` (public) | `./new-block.sh <name>` |
 | Plan, spec, roadmap | `~/golden-cloud/plans/` | plain file + commit/push |
-| Image, PDF, binary | `~/golden-cloud/assets/` or `~/golden-cloud-public/assets/` | plain file + commit/push |
+| Image, PDF, binary | `~/golden-cloud/assets/` or `~/golden-cloud/assets/` | plain file + commit/push |
 | Design mockup (HTML, p69 project) | **not Golden Cloud** — use `~/p69/scripts/add-design.sh` | publishes to `p69.io/designs/...` |
 
 **When uncertain, ask the user once.** Don't guess wrong and put a secret in `notes/`.
@@ -22,7 +22,7 @@ When the user says "put this in Golden Cloud" (or any alias above), **figure out
 
 ## Trust model (read this first)
 
-- Secrets live **encrypted** in `~/golden-cloud/secrets/` (SOPS + age).
+- Secrets live **encrypted** in `~/golden-vault/secrets/` (SOPS + age).
 - This laptop can decrypt them *iff* it has an enrolled age key at `~/.config/sops/age/keys.txt`.
 - Whether you're a Claude Code session, a Cursor agent, a Copilot CLI, or any other AI with shell access: if you're running on this laptop as this user, you have the same access as the user does. No separate auth.
 - Never write plaintext secrets to files inside the repo working tree. Decrypt to `/tmp/`, into env vars via `sops exec-env`, or to the destination path the tool actually consumes (e.g. `.env.production.local` outside the repo).
@@ -34,10 +34,10 @@ When the user says "put this in Golden Cloud" (or any alias above), **figure out
 test -f ~/.config/sops/age/keys.txt && echo "age key present" || echo "NO age key — enrollment needed"
 
 # 2. Can you decrypt a known file?
-sops -d ~/golden-cloud/secrets/p69-prod.env > /dev/null 2>&1 && echo "decrypt works" || echo "decrypt FAILED"
+sops -d ~/golden-vault/secrets/p69-prod.env > /dev/null 2>&1 && echo "decrypt works" || echo "decrypt FAILED"
 ```
 
-If either check fails, stop and tell the user: **"this laptop isn't enrolled in Golden Cloud yet — see `~/golden-cloud/secrets/README.md` step ‘Adding a new laptop’."**
+If either check fails, stop and tell the user: **"this laptop isn't enrolled in Golden Cloud yet — see `~/golden-vault/secrets/README.md` step ‘Adding a new laptop’."**
 
 ## Map of what's where
 
@@ -50,7 +50,7 @@ Canonical mapping lives in `~/golden-cloud/laptop/drop.map` — always source of
 
 ## Adding, updating, rotating secrets — USE `gc-secret`
 
-When the user asks you to **save, store, put, add, update, or rotate** a secret (API key, token, credential, `.env` file, etc.) — use the `gc-secret` helper at `~/golden-cloud/gc-secret.sh`. It handles encryption, commit, and push atomically.
+When the user asks you to **save, store, put, add, update, or rotate** a secret (API key, token, credential, `.env` file, etc.) — use the `gc-secret` helper at `~/golden-vault/gc-secret.sh`. It handles encryption, commit, and push atomically.
 
 **Always pipe the value via stdin — never as a CLI argument.** Arguments leak into shell history and `ps`.
 
@@ -59,7 +59,7 @@ When the user asks you to **save, store, put, add, update, or rotate** a secret 
 ### Add or update a single key
 
 ```bash
-echo "$VALUE" | ~/golden-cloud/gc-secret.sh set <file> <KEY> --purpose "why this is here"
+echo "$VALUE" | ~/golden-vault/gc-secret.sh set <file> <KEY> --purpose "why this is here"
 ```
 
 - If `<file>` doesn't exist → it's created.
@@ -70,15 +70,15 @@ echo "$VALUE" | ~/golden-cloud/gc-secret.sh set <file> <KEY> --purpose "why this
 Example:
 
 ```bash
-echo "$NEW_OPENAI_KEY" | ~/golden-cloud/gc-secret.sh set openai.env OPENAI_API_KEY
+echo "$NEW_OPENAI_KEY" | ~/golden-vault/gc-secret.sh set openai.env OPENAI_API_KEY
 ```
 
 ### Replace an entire file
 
 ```bash
-~/golden-cloud/gc-secret.sh put <file> --purpose "why this is here" < /path/to/plaintext
+~/golden-vault/gc-secret.sh put <file> --purpose "why this is here" < /path/to/plaintext
 # or inline:
-cat <<'EOF' | ~/golden-cloud/gc-secret.sh put new-service.env --purpose "outbound email vendor"
+cat <<'EOF' | ~/golden-vault/gc-secret.sh put new-service.env --purpose "outbound email vendor"
 KEY_A=value_a
 KEY_B=value_b
 EOF
@@ -87,22 +87,22 @@ EOF
 ### See the audit log
 
 ```bash
-~/golden-cloud/gc-secret.sh audit         # last 20 entries
-~/golden-cloud/gc-secret.sh audit 100     # last 100
+~/golden-vault/gc-secret.sh audit         # last 20 entries
+~/golden-vault/gc-secret.sh audit 100     # last 100
 ```
 
-Or just open `~/golden-cloud/secrets/AUDIT.md` — it's human-readable Markdown.
+Or just open `~/golden-vault/secrets/AUDIT.md` — it's human-readable Markdown.
 
 ### Rotate (interactive, hides input)
 
 ```bash
-~/golden-cloud/gc-secret.sh rotate <file> <KEY>
+~/golden-vault/gc-secret.sh rotate <file> <KEY>
 ```
 
 ### Read it back (if the user wants to verify)
 
 ```bash
-~/golden-cloud/gc-secret.sh get <file> <KEY>
+~/golden-vault/gc-secret.sh get <file> <KEY>
 ```
 
 ### How to pick a filename
@@ -125,26 +125,26 @@ Or just open `~/golden-cloud/secrets/AUDIT.md` — it's human-readable Markdown.
 ### "Get me the p69 service role key"
 
 ```bash
-sops -d ~/golden-cloud/secrets/p69-prod.env | awk -F= '/^SUPABASE_SERVICE_ROLE_KEY=/ {print $2; exit}'
+sops -d ~/golden-vault/secrets/p69-prod.env | awk -F= '/^SUPABASE_SERVICE_ROLE_KEY=/ {print $2; exit}'
 ```
 
 ### "Make the design archive script work" (needs `.env.production.local`)
 
 ```bash
-sops -d ~/golden-cloud/secrets/p69-prod.env > ~/p69/.env.production.local
+sops -d ~/golden-vault/secrets/p69-prod.env > ~/p69/.env.production.local
 chmod 600 ~/p69/.env.production.local
 ```
 
 ### "Run <command> with the prod env injected, without touching disk"
 
 ```bash
-sops exec-env ~/golden-cloud/secrets/p69-prod.env "<command>"
+sops exec-env ~/golden-vault/secrets/p69-prod.env "<command>"
 ```
 
 Example:
 
 ```bash
-sops exec-env ~/golden-cloud/secrets/p69-prod.env "pnpm tsx scripts/some-admin-script.ts"
+sops exec-env ~/golden-vault/secrets/p69-prod.env "pnpm tsx scripts/some-admin-script.ts"
 ```
 
 ### "Bootstrap all secrets onto this laptop"
@@ -165,7 +165,7 @@ That script walks `drop.map` and decrypts each secret into its destination path.
 
 ## Enrollment (when a new laptop/AI/person needs access)
 
-Full guide: `~/golden-cloud/secrets/README.md` → "Adding a new laptop / person / AI device"
+Full guide: `~/golden-vault/secrets/README.md` → "Adding a new laptop / person / AI device"
 
 Short version:
 1. New device generates `age-keygen -o ~/.config/sops/age/keys.txt`

@@ -17,7 +17,7 @@ if [ "${2:-}" = "--public" ]; then
 fi
 
 if $PUBLIC; then
-  ROOT="$HOME/golden-cloud-public"
+  ROOT="$HOME/golden-cloud"
 else
   ROOT="$HOME/golden-cloud"
 fi

@@ -20,11 +20,11 @@ Claude reads its responses aloud through ElevenLabs' streaming TTS. Audio starts
 ## Install
 
 ```bash
-# Clone golden-cloud-public (if you haven't)
-git clone https://github.com/goldenfocus/golden-cloud-public.git ~/golden-cloud-public
+# Clone golden-cloud (if you haven't)
+git clone https://github.com/goldenfocus/golden-cloud.git ~/golden-cloud
 
 # Run the installer
-bash ~/golden-cloud-public/blocks/bella-tts/install.sh
+bash ~/golden-cloud/blocks/bella-tts/install.sh
 ```
 
 The installer:

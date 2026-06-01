@@ -58,7 +58,7 @@ Canonical tier list: `.claude/agents/qa-gatekeeper.md`.
 
 ### Golden Cloud — Shared Brain
 
-Yan's shared brain. Aliases (interchangeable): **Golden Cloud / Gold Cloud / Golden Secret / Golden Vault / Golden Focus / the cloud / the vault**. Two halves: `~/golden-cloud/` (private) + `~/golden-cloud-public/`. Protocol: `~/golden-cloud/AI.md`.
+Yan's shared brain. Aliases (interchangeable): **Golden Cloud / Gold Cloud / Golden Secret / Golden Vault / Golden Focus / the cloud / the vault**. Two halves: `~/golden-cloud/` (private) + `~/golden-cloud/`. Protocol: `~/golden-cloud/AI.md`.
 
 - **Secrets / API keys / `.env`**: never ask Yan to paste. Decrypt via `sops -d ~/golden-cloud/secrets/<file>`. Write via `echo "$VAL" | ~/golden-cloud/gc-secret.sh set <file> <KEY>` (encrypts + commits + pushes atomically).
 - **Prompts / notes / blocks**: drop into the right subfolder, commit, push.
@@ -223,7 +223,7 @@ When Yan shares a screenshot:
 Claude Code ships material changes ~weekly. Treat these rules as a living doc.
 
 - Daily: `claude update` (free, one command).
-- Weekly: `~/golden-cloud-public/claude-code/check-updates.sh` diffs official docs index vs cached snapshot. `mv` new over cache to accept.
+- Weekly: `~/golden-cloud/claude-code/check-updates.sh` diffs official docs index vs cached snapshot. `mv` new over cache to accept.
 - On "wait, can Claude do X now?" — actually check, don't assume.
 - After learning a feature that changes defaults — update this file same day.
 

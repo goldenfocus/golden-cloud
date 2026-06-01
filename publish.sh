@@ -12,7 +12,7 @@ fi
 
 REL="$1"
 PRIVATE_DIR="$(cd "$(dirname "$0")" && pwd)"
-PUBLIC_DIR="$HOME/golden-cloud-public"
+PUBLIC_DIR="$HOME/golden-cloud"
 
 SRC="$PRIVATE_DIR/$REL"
 DST="$PUBLIC_DIR/$REL"
@@ -24,7 +24,7 @@ fi
 
 if [ ! -d "$PUBLIC_DIR" ]; then
   echo "public repo not cloned at $PUBLIC_DIR"
-  echo "run: gh repo clone goldenfocus/golden-cloud-public $PUBLIC_DIR"
+  echo "run: gh repo clone goldenfocus/golden-cloud $PUBLIC_DIR"
   exit 1
 fi
 
@@ -44,5 +44,5 @@ git commit -m "publish: moved $REL to public"
 git push
 
 echo ""
-echo "published: https://github.com/goldenfocus/golden-cloud-public/blob/main/$REL"
-echo "raw URL:   https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/$REL"
+echo "published: https://github.com/goldenfocus/golden-cloud/blob/main/$REL"
+echo "raw URL:   https://raw.githubusercontent.com/goldenfocus/golden-cloud/main/$REL"

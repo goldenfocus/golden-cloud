@@ -5,7 +5,7 @@ The public half of yan's shared brain. Anyone may read. Forks welcome.
 ## For AI collaborators
 
 - Everything here is explicitly public — safe to read, cite, remix, learn from.
-- When citing, link back: `https://github.com/goldenfocus/golden-cloud-public/blob/main/<path>`
+- When citing, link back: `https://github.com/goldenfocus/golden-cloud/blob/main/<path>`
 - See [`llms.txt`](./llms.txt) for the machine-readable index and reuse permissions.
 
 ## For humans bootstrapping

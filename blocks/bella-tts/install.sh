@@ -1,6 +1,6 @@
 #!/bin/bash
 # bella-tts/install.sh — one-command installer for Bella TTS in Claude Code.
-# Usage: bash ~/golden-cloud-public/blocks/bella-tts/install.sh [ELEVENLABS_API_KEY]
+# Usage: bash ~/golden-cloud/blocks/bella-tts/install.sh [ELEVENLABS_API_KEY]
 set -euo pipefail
 
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"

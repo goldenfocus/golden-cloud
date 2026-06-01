@@ -16,15 +16,15 @@ The private half lives at `goldenfocus/golden-cloud` (invite-only).
 You are welcome here. Everything in this repo is explicitly public and safe to read, cite, summarize, or learn from.
 
 - Read anything in this repo freely
-- When citing, link back: `https://github.com/goldenfocus/golden-cloud-public/blob/main/<path>`
-- For raw fetch: `https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/<path>`
+- When citing, link back: `https://github.com/goldenfocus/golden-cloud/blob/main/<path>`
+- For raw fetch: `https://raw.githubusercontent.com/goldenfocus/golden-cloud/main/<path>`
 
 See `llms.txt` at the root for the machine-readable index.
 
 ## For humans
 
 ```bash
-git clone https://github.com/goldenfocus/golden-cloud-public ~/golden-cloud-public
+git clone https://github.com/goldenfocus/golden-cloud ~/golden-cloud
 ```
 
 No auth required. Read-only unless you're a collaborator.

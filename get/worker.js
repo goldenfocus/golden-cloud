@@ -7,10 +7,10 @@
  * Future paths (reserved):
  *   /           → startup-kit/install.sh
  *   /elite      → startup-kit/install.sh (alias)
- *   /raw/<path> → raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/<path>
+ *   /raw/<path> → raw.githubusercontent.com/goldenfocus/golden-cloud/main/<path>
  */
 
-const REPO = "goldenfocus/golden-cloud-public";
+const REPO = "goldenfocus/golden-cloud";
 const BRANCH = "main";
 const BASE = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
 const DEFAULT_SCRIPT = "/startup-kit/install.sh";

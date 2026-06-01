@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-REPO_RAW="https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/startup-kit"
+REPO_RAW="https://raw.githubusercontent.com/goldenfocus/golden-cloud/main/startup-kit"
 KIT="${HOME}/.goldenfocus-startup-kit"
 
 say()  { printf "\n\033[1;33m▸ %s\033[0m\n" "$*"; }
@@ -27,7 +27,7 @@ fi
 # ── 2. Clone the kit locally (for file copies) ─────────────────────────────────
 say "Fetching kit"
 rm -rf "$KIT"
-git clone --depth=1 https://github.com/goldenfocus/golden-cloud-public.git "$KIT.tmp" >/dev/null 2>&1
+git clone --depth=1 https://github.com/goldenfocus/golden-cloud.git "$KIT.tmp" >/dev/null 2>&1
 mv "$KIT.tmp/startup-kit" "$KIT"
 rm -rf "$KIT.tmp"
 ok "cached at $KIT"
@@ -122,11 +122,11 @@ Your machine is loaded. Here's what's next:
   1. Restart your terminal (or run: exec fish)
   2. Sign into Claude Code:   claude /login
   3. Set up your private half (secrets, team sharing):
-     https://github.com/goldenfocus/golden-cloud-public/blob/main/startup-kit/PRIVATE-SETUP.md
+     https://github.com/goldenfocus/golden-cloud/blob/main/startup-kit/PRIVATE-SETUP.md
   4. (Optional) Make fish your default shell — see warning above.
 
 Questions, issues, upgrades:
-  https://github.com/goldenfocus/golden-cloud-public/issues
+  https://github.com/goldenfocus/golden-cloud/issues
 
 Ship something today.
 ─────────────────────────────────────────────────

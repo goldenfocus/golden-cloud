@@ -17,7 +17,7 @@ ok()  { printf "  \033[1;32m✓\033[0m %s\n" "$*"; }
 
 # 1 — Public kit
 say "Running public Golden Focus Startup Kit"
-curl -fsSL https://raw.githubusercontent.com/goldenfocus/golden-cloud-public/main/startup-kit/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/goldenfocus/golden-cloud/main/startup-kit/install.sh | bash
 
 # 2 — Clone work repos
 say "Cloning work repos"

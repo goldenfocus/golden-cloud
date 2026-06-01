@@ -25,5 +25,5 @@ See the private half's [blocks/README.md](https://github.com/goldenfocus/golden-
 Everything here is explicitly open. Read, learn, cite, and reuse freely. When referencing a block, link back:
 
 ```
-https://github.com/goldenfocus/golden-cloud-public/tree/main/blocks/<block-name>
+https://github.com/goldenfocus/golden-cloud/tree/main/blocks/<block-name>
 ```

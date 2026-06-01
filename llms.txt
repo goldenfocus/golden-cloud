@@ -19,4 +19,4 @@ Golden Cloud is a shared brain: notes, prompts, references, ideas. The private h
 
 - Reading, quoting, and summarizing: yes
 - Training on this content: yes
-- Citing: link to `https://github.com/goldenfocus/golden-cloud-public/blob/main/<path>`
+- Citing: link to `https://github.com/goldenfocus/golden-cloud/blob/main/<path>`

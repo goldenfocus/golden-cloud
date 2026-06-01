@@ -6,7 +6,7 @@
 
 ## What `bootstrap.sh` does
 
-1. Installs the public [Golden Focus Startup Kit](https://github.com/goldenfocus/golden-cloud-public/tree/main/startup-kit) — brew tools, fish, Claude Code config, statusline, quotes, hooks
+1. Installs the public [Golden Focus Startup Kit](https://github.com/goldenfocus/golden-cloud/tree/main/startup-kit) — brew tools, fish, Claude Code config, statusline, quotes, hooks
 2. Clones the work repos (`repos.txt`)
 3. Decrypts SOPS secrets and drops them where each tool expects them (`drop.map`)
 4. Symlinks `gc-secret` onto `$PATH`

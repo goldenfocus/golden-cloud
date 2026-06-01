@@ -6,7 +6,7 @@
 set -euo pipefail
 
 URL="https://code.claude.com/docs/llms.txt"
-CACHE_DIR="$HOME/golden-cloud-public/claude-code"
+CACHE_DIR="$HOME/golden-cloud/claude-code"
 CACHED="$CACHE_DIR/llms.txt.cache"
 TMP="$CACHE_DIR/llms.txt.new"
 

@@ -7,7 +7,7 @@ type: reference
 `~/golden-cloud/` is yan's "shared brain across laptops, people, and AIs" (per `AGENTS.md`). Canonical home for:
 
 - **Secrets** (`secrets/`) — SOPS+age encrypted; manage via `~/golden-cloud/gc-secret.sh` (always pipe stdin, never CLI args). Audit log at `secrets/AUDIT.md`. Pass `--purpose "..."` when writing.
-- **Reusable blocks** (`blocks/`) — API-first tested modules; bootstrap with `./new-block.sh <name>`. Public counterpart: `~/golden-cloud-public/blocks/`.
+- **Reusable blocks** (`blocks/`) — API-first tested modules; bootstrap with `./new-block.sh <name>`. Public counterpart: `~/golden-cloud/blocks/`.
 - **Prompts / notes / plans / assets** — each in its own dir, plain files + git commit/push.
 - **Memory** (`memory/`) — the AI-memory layer that contains this very file. See `memory/AGENTS.md`.
 - **Laptop bootstrap** (`laptop/bootstrap.sh`, `laptop/drop.map`, `laptop/whoami.txt`, `laptop/gc-memory-sync.sh`) — drops decrypted secrets to their target paths and wires shared memory on a fresh laptop.

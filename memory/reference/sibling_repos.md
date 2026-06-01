@@ -9,7 +9,7 @@ type: reference
 ## Core infra
 
 - `golden-cloud/` — yan's shared-brain repo: cross-AI/cross-laptop secrets (SOPS+age via `gc-secret.sh`), prompts, notes, plans, blocks, **shared AI memory** (this dir's parent). Operating manual: `~/golden-cloud/AI.md`. Both yan and JR depend on it.
-- `golden-cloud-public/` — public-shareable counterpart (parallel structure). May not exist yet on every laptop.
+- `golden-cloud/` — public-shareable counterpart (parallel structure). May not exist yet on every laptop.
 
 ## p69 ecosystem (first zemium customer + lamtl provider tenant)
 

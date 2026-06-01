@@ -45,7 +45,7 @@ See [PRIVATE-SETUP.md](./PRIVATE-SETUP.md) for the 5-minute walkthrough: create 
 
 ## Questions, issues, requests
 
-Open an issue: https://github.com/goldenfocus/golden-cloud-public/issues
+Open an issue: https://github.com/goldenfocus/golden-cloud/issues
 
 ---
 
