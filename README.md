@@ -6,6 +6,7 @@ The private half lives at `goldenfocus/golden-cloud` (invite-only).
 
 ## What's here
 
+- `skills/` — shareable Claude Code skills (install: copy into `~/.claude/skills/`)
 - `prompts/` — reusable prompts, system messages, templates
 - `notes/` — public thoughts, ideas, journal entries yan chose to share
 - `refs/` — reference material: links, cheatsheets, snippets
