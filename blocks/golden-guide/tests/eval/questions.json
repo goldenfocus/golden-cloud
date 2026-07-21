@@ -1,0 +1,7 @@
+[
+  { "q": "show me around", "expectTools": ["run_flow"] },
+  { "q": "how do I record my voice?", "expectTools": ["run_flow"] },
+  { "q": "take me to karaoke", "expectTools": ["navigate_to"] },
+  { "q": "I want to talk to a human", "expectTools": ["escalate_to_support"] },
+  { "q": "what is the capital of France?", "expectTools": [] }
+]
