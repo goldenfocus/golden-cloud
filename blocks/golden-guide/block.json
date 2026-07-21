@@ -1,0 +1,10 @@
+{
+  "name": "golden-guide",
+  "version": "1.0.0",
+  "description": "Embeddable AI support agent that drives the host web app: navigates, highlights, runs guided flows, escalates to Telegram.",
+  "language": "typescript",
+  "entry": "src/",
+  "install": "copy-in (vendor src/ into the host app, e.g. lib/golden-guide/)",
+  "requires": { "next": ">=14", "react": ">=18" },
+  "tags": ["ai", "support", "agent", "widget", "nextjs"]
+}
